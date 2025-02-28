@@ -1,0 +1,8 @@
+env/*
+nv/Lib/site-packages/clang/native/libclang.dll *
+nv/Lib/site-packages/tensorflow/python/_pywrap_tensorflow_internal.pyd *
+nv/Lib/site-packages/tensorflow/python/_pywrap_tensorflow_internal.lib *
+nv/Lib/site-packages/tensorflow/python/_pywrap_tensorflow_internal.so *
+env/Lib/site-packages/clang/native/libclang.dll *
+env/Lib/site-packages/tensorflow/python/_pywrap_tensorflow_internal.pyd *
+env/Lib/site-packages/tensorflow/python/_pywrap_tensorflow_internal.lib *
