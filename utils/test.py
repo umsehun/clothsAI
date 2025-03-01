@@ -4,7 +4,7 @@ import json
 # CSV 파일 확인
 print("==== CSV 파일 구조 확인 ====")
 try:
-    df = pd.read_csv("musinsa_ranking_api.csv", encoding='utf-8-sig')
+    df = pd.read_csv("../dataset/musinsa_ranking_api.csv", encoding='utf-8-sig')
     print(f"CSV 컬럼: {df.columns.tolist()}")
     print(f"CSV 샘플 (첫 번째 행):")
     print(df.iloc[0])
@@ -14,7 +14,7 @@ except Exception as e:
 # JSON 파일 확인
 print("\n==== JSON 파일 구조 확인 ====")
 try:
-    with open("musinsa_detailed.json", "r", encoding="utf-8") as f:
+    with open("../dataset/musinsa_detailed.json", "r", encoding="utf-8") as f:
         data = json.load(f)
         
     print(f"JSON 최상위 타입: {type(data)}")

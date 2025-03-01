@@ -1,5 +1,6 @@
 import requests
 import json
+import time
 
 # 무신사 API 엔드포인트 설정
 store_api = {
@@ -22,19 +23,65 @@ STYLE_OPTIONS = ["캐주얼", "미니멀", "스포티", "워크웨어", "시크"
 
 # API 호출 함수
 def fetch_api(url):
-    headers = {'User-Agent': 'Mozilla/5.0'}
+    """무신사 API에서 데이터를 가져오는 함수"""
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+    
     try:
-        response = requests.get(url, headers=headers, timeout=10)
-
-        # 응답이 JSON이 아니라면 오류 처리
+        response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            return response.json()
+            try:
+                return response.json()
+            except json.JSONDecodeError:
+                print("JSON 디코딩 오류")
+                return None
         else:
-            print(f"❌ API 호출 실패: {url} (상태: {response.status_code})")
+            print(f"API 요청 실패: {response.status_code}")
             return None
     except Exception as e:
-        print(f"❌ 오류 발생: {e} - {url}")
+        print(f"API 호출 중 오류: {e}")
         return None
+
+def fetch_product_detail(product_id):
+    """상품 상세 정보를 가져오는 함수"""
+    url = f"https://www.musinsa.com/api2/product/{product_id}"
+    return fetch_api(url)
+
+def fetch_recommended_products(count=20):
+    """추천 상품 데이터를 가져오는 함수"""
+    # 다양한 카테고리 API 엔드포인트
+    endpoints = [
+        "https://www.musinsa.com/api2/hm/v4/pans/recommend?storeCode=musinsa&page=1",
+        "https://www.musinsa.com/api2/hm/v4/pans/ranking?storeCode=musinsa&page=1",
+        "https://www.musinsa.com/api2/hm/v2/pans/sale?storeCode=musinsa&page=1",
+        "https://www.musinsa.com/api2/main/v1/coordi/list?scenarioType=TOPRANKING&styleType=CASUAL&goodsNo=&includeEvent=false&includeStyleTags=true&page=1"
+    ]
+    
+    all_products = []
+    
+    for url in endpoints:
+        data = fetch_api(url)
+        if data and 'data' in data and 'modules' in data['data']:
+            modules = data['data']['modules']
+            
+            for module in modules:
+                # 상품 목록 찾기
+                if 'items' in module and isinstance(module['items'], list):
+                    products = module['items']
+                    all_products.extend(products)
+                    
+                # 다른 형태의 상품 목록 찾기
+                elif 'products' in module and isinstance(module['products'], list):
+                    products = module['products']
+                    all_products.extend(products)
+        
+        time.sleep(1)  # API 호출간 딜레이
+        
+        if len(all_products) >= count:
+            break
+    
+    return all_products[:count]
 
 # 데이터 수집 및 저장
 final_data = {}
@@ -42,6 +89,7 @@ final_data = {}
 for store, pans in store_api.items():
     final_data[store] = {}
     for pan_type, api_url in pans.items():
+        
         print(f"🔍 가져오는 중: {store} - {pan_type} ({api_url})")
         data = fetch_api(api_url)
 
